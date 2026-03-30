@@ -249,7 +249,6 @@ input:focus {
   box-shadow: var(--shadow);
   border: 1px solid rgba(102, 113, 138, 0.12);
   transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
-  touch-action: none;
   text-align: left;
 }
 
