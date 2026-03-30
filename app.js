@@ -120,10 +120,11 @@ function renderHomeScreen() {
     workoutList.innerHTML = '<div class="empty-state">No workouts yet. Add one to get started.</div>';
   } else {
     state.workouts.forEach((workout) => {
-      const item = document.createElement("button");
-      item.type = "button";
+      const item = document.createElement("div");
       item.className = "workout-item";
       item.dataset.workoutId = workout.id;
+      item.setAttribute("role", "button");
+      item.setAttribute("tabindex", "0");
 
       const meta = document.createElement("div");
       meta.className = "workout-meta";
@@ -157,6 +158,17 @@ function renderHomeScreen() {
       }
 
       item.addEventListener("click", () => {
+        state.currentWorkoutId = workout.id;
+        saveState();
+        render();
+      });
+
+      item.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return;
+        }
+
+        event.preventDefault();
         state.currentWorkoutId = workout.id;
         saveState();
         render();
@@ -253,10 +265,11 @@ function renderWorkoutScreen(workoutId) {
 
   if (workout.exercises.length > 0) {
     workout.exercises.forEach((exercise) => {
-      const item = document.createElement("button");
-      item.type = "button";
+      const item = document.createElement("div");
       item.className = `exercise-item${exercise.checked ? " checked" : ""}`;
       item.dataset.exerciseId = exercise.id;
+      item.setAttribute("role", "button");
+      item.setAttribute("tabindex", "0");
 
       const label = document.createElement("div");
       label.className = "exercise-label";
@@ -274,6 +287,19 @@ function renderWorkoutScreen(workoutId) {
       item.append(label, checkmark);
 
       item.addEventListener("click", () => {
+        exercise.checked = !exercise.checked;
+        updateCompletionState(workout);
+        saveState();
+        syncExerciseItem(item, exercise, checkmark, name);
+        syncWorkoutProgress(progressBar, completeMessage, workout);
+      });
+
+      item.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return;
+        }
+
+        event.preventDefault();
         exercise.checked = !exercise.checked;
         updateCompletionState(workout);
         saveState();
