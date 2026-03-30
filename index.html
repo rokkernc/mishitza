@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mishitza</title>
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Mishitza" />
+    <meta name="description" content="Track workouts and exercises with Mishitza." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <p class="eyebrow">Workout Tracker</p>
+        <h1>Mishitza</h1>
+      </header>
+
+      <main id="app"></main>
+    </div>
+
+    <div id="dialog-root"></div>
+
+    <template id="home-screen-template">
+      <section class="screen screen-home">
+        <div id="workout-list" class="workout-list"></div>
+
+        <div class="bottom-action">
+          <div class="card workout-form hidden" id="workout-form-card">
+            <label class="field">
+              <span>Workout title</span>
+              <input id="workout-title-input" type="text" maxlength="60" placeholder="Push day" />
+            </label>
+
+            <div class="actions">
+              <button class="ghost-button" id="cancel-workout-form">Cancel</button>
+              <button class="primary-button" id="save-workout">Save workout</button>
+            </div>
+          </div>
+
+          <button class="primary-button add-workout-button" id="show-workout-form">+ Add workout</button>
+        </div>
+      </section>
+    </template>
+
+    <template id="workout-screen-template">
+      <section class="screen screen-workout">
+        <div class="section-head workout-head">
+          <button class="back-button" id="back-home">Back</button>
+          <div class="workout-head-copy">
+            <h2 id="workout-screen-title"></h2>
+            <div class="progress-shell" aria-label="Workout progress">
+              <div id="workout-progress-bar" class="progress-bar"></div>
+            </div>
+          </div>
+          <div class="workout-head-spacer" aria-hidden="true"></div>
+        </div>
+
+        <div id="exercise-list" class="exercise-list"></div>
+
+        <div class="bottom-action exercise-action">
+          <div id="exercise-form" class="inline-form hidden">
+            <input id="exercise-input" type="text" maxlength="80" placeholder="Add an exercise" />
+            <button class="primary-button" id="confirm-add-exercise">Add</button>
+          </div>
+          <button class="primary-button add-workout-button" id="show-exercise-form">+ Add exercise</button>
+        </div>
+
+        <div id="workout-complete-message" class="complete-message hidden">
+          <strong>Workout complete</strong>
+          <span>Great job 💪</span>
+        </div>
+      </section>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
