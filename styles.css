@@ -76,7 +76,7 @@ button {
 }
 
 .screen {
-  margin-top: 24px;
+  margin-top: 0;
   animation: screen-enter 240ms ease;
 }
 
@@ -350,7 +350,7 @@ input:focus {
   width: 38px;
   height: 38px;
   flex-shrink: 0;
-  color: var(--muted);
+  color: #66718a80;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
