@@ -44,7 +44,7 @@ button {
 .app-shell {
   width: min(760px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 24px 0 calc(96px + env(safe-area-inset-bottom, 0px));
+  padding: 24px 0 calc(24px + env(safe-area-inset-bottom, 0px));
 }
 
 .hero {
