@@ -80,9 +80,6 @@ button {
   animation: screen-enter 240ms ease;
 }
 
-.screen-workout {
-  margin-top: 14px;
-}
 
 .section-head {
   display: flex;
