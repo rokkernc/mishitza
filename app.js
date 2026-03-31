@@ -173,7 +173,7 @@ function renderHomeScreen() {
 
         const badge = document.createElement("span");
         badge.className = "badge badge-complete";
-        badge.textContent = "Last";
+        badge.textContent = "Latest";
 
         const date = document.createElement("span");
         date.className = "completion-date";
