@@ -91,6 +91,7 @@ function renderHomeScreen() {
   showFormButton.addEventListener("click", () => {
     formCard.classList.remove("hidden");
     workoutTitleInput.focus();
+    scrollIntoViewAfterKeyboard(formCard);
   });
 
   cancelFormButton.addEventListener("click", () => {
@@ -98,7 +99,7 @@ function renderHomeScreen() {
     workoutTitleInput.value = "";
   });
 
-  saveWorkoutButton.addEventListener("click", () => {
+  const submitWorkout = () => {
     const title = workoutTitleInput.value.trim();
 
     if (!title) {
@@ -114,6 +115,19 @@ function renderHomeScreen() {
 
     saveState();
     render();
+  };
+
+  saveWorkoutButton.addEventListener("click", submitWorkout);
+  workoutTitleInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+    submitWorkout();
+  });
+  workoutTitleInput.addEventListener("focus", () => {
+    scrollIntoViewAfterKeyboard(formCard);
   });
 
   if (state.workouts.length === 0) {
@@ -143,8 +157,14 @@ function renderHomeScreen() {
 
       const grip = document.createElement("span");
       grip.className = "drag-grip";
-      grip.textContent = "≡";
       grip.setAttribute("aria-label", "Reorder workout");
+      grip.innerHTML = `
+        <span class="drag-grip-dots" aria-hidden="true">
+          <span></span><span></span>
+          <span></span><span></span>
+          <span></span><span></span>
+        </span>
+      `;
       item.appendChild(grip);
 
       if (state.lastCompletedWorkoutId === workout.id) {
@@ -248,9 +268,10 @@ function renderWorkoutScreen(workoutId) {
   showExerciseFormButton.addEventListener("click", () => {
     exerciseForm.classList.remove("hidden");
     exerciseInput.focus();
+    scrollIntoViewAfterKeyboard(exerciseForm);
   });
 
-  confirmAddExerciseButton.addEventListener("click", () => {
+  const submitExercise = () => {
     const name = exerciseInput.value.trim();
 
     if (!name) {
@@ -268,6 +289,19 @@ function renderWorkoutScreen(workoutId) {
     exerciseForm.classList.add("hidden");
     saveState();
     render();
+  };
+
+  confirmAddExerciseButton.addEventListener("click", submitExercise);
+  exerciseInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+    submitExercise();
+  });
+  exerciseInput.addEventListener("focus", () => {
+    scrollIntoViewAfterKeyboard(exerciseForm);
   });
 
   if (workout.exercises.length > 0) {
@@ -293,8 +327,14 @@ function renderWorkoutScreen(workoutId) {
 
       const grip = document.createElement("span");
       grip.className = "drag-grip";
-      grip.textContent = "≡";
       grip.setAttribute("aria-label", "Reorder exercise");
+      grip.innerHTML = `
+        <span class="drag-grip-dots" aria-hidden="true">
+          <span></span><span></span>
+          <span></span><span></span>
+          <span></span><span></span>
+        </span>
+      `;
 
       item.append(checkmark, label, grip);
 
@@ -651,6 +691,15 @@ function attachHoldGesture(handle, { dragElement, container, itemSelector, onHol
 function reorderCollectionByIds(collection, orderedIds) {
   const byId = new Map(collection.map((entry) => [entry.id, entry]));
   return orderedIds.map((id) => byId.get(id)).filter(Boolean);
+}
+
+function scrollIntoViewAfterKeyboard(element) {
+  window.setTimeout(() => {
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, 250);
 }
 
 function showConfirmDialog({ title, message, confirmLabel, onConfirm }) {

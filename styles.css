@@ -44,7 +44,7 @@ button {
 .app-shell {
   width: min(760px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 28px 0 56px;
+  padding: 28px 0 calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 .hero {
@@ -293,15 +293,25 @@ input:focus {
   width: 38px;
   height: 38px;
   flex-shrink: 0;
-  border-radius: 999px;
-  background: rgba(219, 232, 255, 0.45);
   color: var(--muted);
-  font-size: 1.25rem;
-  line-height: 1;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
+}
+
+.drag-grip-dots {
+  display: grid;
+  grid-template-columns: repeat(2, 4px);
+  gap: 4px 5px;
+}
+
+.drag-grip-dots span {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.78;
 }
 
 .workout-name,
