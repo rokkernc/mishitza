@@ -44,7 +44,7 @@ button {
 .app-shell {
   width: min(760px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 28px 0 calc(96px + env(safe-area-inset-bottom, 0px));
+  padding: 24px 0 calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 .hero {
@@ -617,7 +617,6 @@ input:focus {
 @media (max-width: 640px) {
   .app-shell {
     width: min(100% - 20px, 760px);
-    padding-top: 14px;
   }
 
   .hero {
