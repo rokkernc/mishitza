@@ -44,6 +44,17 @@ function registerServiceWorker() {
 
 function initializeHistory() {
   window.addEventListener("popstate", (event) => {
+    const leavingWorkoutId = state.currentWorkoutId;
+    const nextWorkoutId = event.state?.workoutId ?? null;
+
+    if (leavingWorkoutId && !nextWorkoutId) {
+      const workout = state.workouts.find((entry) => entry.id === leavingWorkoutId);
+
+      if (workout && isWorkoutComplete(workout)) {
+        resetAllWorkoutProgress();
+      }
+    }
+
     state.currentWorkoutId = event.state?.workoutId ?? null;
     saveState();
     render();
@@ -365,6 +376,7 @@ function renderWorkoutScreen(workoutId) {
   const title = fragment.getElementById("workout-screen-title");
   const editTitleButton = fragment.getElementById("edit-workout-title");
   const titleEditInput = fragment.getElementById("workout-title-edit-input");
+  const backButton = fragment.getElementById("back-home");
   const exerciseList = fragment.getElementById("exercise-list");
   const showExerciseFormButton = fragment.getElementById("show-exercise-form");
   const exerciseForm = fragment.getElementById("exercise-form");
@@ -438,6 +450,16 @@ function renderWorkoutScreen(workoutId) {
 
   titleEditInput.addEventListener("click", (event) => {
     event.stopPropagation();
+  });
+
+  backButton.addEventListener("click", () => {
+    document.removeEventListener("click", handleOutsideTitleSave);
+
+    if (isWorkoutComplete(workout)) {
+      resetAllWorkoutProgress();
+    }
+
+    goHome();
   });
 
   showExerciseFormButton.addEventListener("click", () => {
