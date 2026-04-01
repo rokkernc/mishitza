@@ -9,6 +9,7 @@ const homeTemplate = document.getElementById("home-screen-template");
 const workoutTemplate = document.getElementById("workout-screen-template");
 const stopwatchStore = {};
 let activeStopwatchIntervalId = null;
+let completeMessageTimeoutId = null;
 
 const state = loadState();
 
@@ -683,13 +684,45 @@ function syncExerciseItem(item, exercise, checkmark, name) {
 }
 
 function syncWorkoutProgress(progressBar, completeMessage, workout) {
+  const completed = isWorkoutComplete(workout);
+
   // Delay the width update by a frame so the browser animates the fill
   // instead of jumping straight to the next value after a DOM rewrite.
   requestAnimationFrame(() => {
     progressBar.style.width = `${getWorkoutProgress(workout)}%`;
   });
 
-  completeMessage.classList.toggle("hidden", !isWorkoutComplete(workout));
+  if (completed) {
+    showWorkoutCompleteMessage(completeMessage);
+    return;
+  }
+
+  hideWorkoutCompleteMessage(completeMessage);
+}
+
+function showWorkoutCompleteMessage(completeMessage) {
+  if (completeMessageTimeoutId) {
+    window.clearTimeout(completeMessageTimeoutId);
+  }
+
+  completeMessage.classList.remove("hidden");
+  completeMessage.classList.remove("complete-message-visible");
+  void completeMessage.offsetWidth;
+  completeMessage.classList.add("complete-message-visible");
+
+  completeMessageTimeoutId = window.setTimeout(() => {
+    hideWorkoutCompleteMessage(completeMessage);
+  }, 2000);
+}
+
+function hideWorkoutCompleteMessage(completeMessage) {
+  if (completeMessageTimeoutId) {
+    window.clearTimeout(completeMessageTimeoutId);
+    completeMessageTimeoutId = null;
+  }
+
+  completeMessage.classList.remove("complete-message-visible");
+  completeMessage.classList.add("hidden");
 }
 
 function getStopwatchEntry(workoutId) {

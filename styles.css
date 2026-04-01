@@ -528,18 +528,28 @@ input:focus {
 }
 
 .complete-message {
-  position: sticky;
-  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
-  margin: 18px 0 0;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
   display: grid;
-  gap: 6px;
+  place-items: center;
+  padding: 20px;
+  background: rgba(22, 32, 51, 0.52);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.complete-message-card {
+  width: min(320px, calc(100vw - 40px));
   text-align: center;
   background: var(--success);
   color: white;
-  padding: 14px 16px;
-  border-radius: 999px;
+  padding: 18px 22px;
+  border-radius: 22px;
   box-shadow: var(--shadow);
-  animation: complete-pop 560ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  transform: scale(0.92);
+  display: grid;
+  gap: 6px;
 }
 
 .complete-message strong,
@@ -548,7 +558,21 @@ input:focus {
 }
 
 .complete-message strong {
-  font-size: 1.2em;
+  font-size: 1.8em;
+}
+
+.complete-message span {
+  font-size: 1.5em;
+}
+
+.complete-message-visible {
+  animation: complete-pop 560ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  animation-fill-mode: forwards;
+  opacity: 1;
+}
+
+.complete-message-visible .complete-message-card {
+  transform: scale(1);
 }
 
 .stopwatch-panel {
@@ -595,19 +619,16 @@ input:focus {
 @keyframes complete-pop {
   0% {
     opacity: 0;
-    transform: translateY(18px) scale(0.9);
     filter: saturate(0.8);
   }
 
   55% {
     opacity: 1;
-    transform: translateY(-6px) scale(1.04);
     filter: saturate(1.15);
   }
 
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
     filter: saturate(1);
   }
 }
