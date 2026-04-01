@@ -7,9 +7,10 @@ const app = document.getElementById("app");
 const dialogRoot = document.getElementById("dialog-root");
 const homeTemplate = document.getElementById("home-screen-template");
 const workoutTemplate = document.getElementById("workout-screen-template");
+const stopwatchStore = {};
+let activeStopwatchIntervalId = null;
 
 const state = loadState();
-let activeWorkoutViewId = null;
 
 registerServiceWorker();
 render();
@@ -104,16 +105,10 @@ function render() {
   app.innerHTML = "";
 
   if (state.currentWorkoutId) {
-    if (activeWorkoutViewId !== state.currentWorkoutId) {
-      resetWorkoutProgress(state.currentWorkoutId);
-      activeWorkoutViewId = state.currentWorkoutId;
-    }
-
     renderWorkoutScreen(state.currentWorkoutId);
     return;
   }
 
-  activeWorkoutViewId = null;
   renderHomeScreen();
 }
 
@@ -340,10 +335,14 @@ function renderWorkoutScreen(workoutId) {
   const confirmAddExerciseButton = fragment.getElementById("confirm-add-exercise");
   const completeMessage = fragment.getElementById("workout-complete-message");
   const progressBar = fragment.getElementById("workout-progress-bar");
+  const stopwatchTime = fragment.getElementById("workout-stopwatch");
+  const toggleStopwatchButton = fragment.getElementById("toggle-stopwatch");
+  const resetStopwatchButton = fragment.getElementById("reset-stopwatch");
 
   title.textContent = workout.title;
   titleEditInput.value = workout.title;
   progressBar.style.width = `${getWorkoutProgress(workout)}%`;
+  bindStopwatch(workout.id, stopwatchTime, toggleStopwatchButton, resetStopwatchButton);
 
   let isEditingTitle = false;
 
@@ -405,6 +404,11 @@ function renderWorkoutScreen(workoutId) {
 
   backButton.addEventListener("click", () => {
     document.removeEventListener("click", handleOutsideTitleSave);
+
+    if (isWorkoutComplete(workout)) {
+      resetAllWorkoutProgress();
+    }
+
     state.currentWorkoutId = null;
     saveState();
     render();
@@ -640,6 +644,80 @@ function syncWorkoutProgress(progressBar, completeMessage, workout) {
   completeMessage.classList.toggle("hidden", !isWorkoutComplete(workout));
 }
 
+function getStopwatchEntry(workoutId) {
+  if (!stopwatchStore[workoutId]) {
+    stopwatchStore[workoutId] = {
+      elapsedMs: 0,
+      running: false,
+      startedAt: null,
+    };
+  }
+
+  return stopwatchStore[workoutId];
+}
+
+function bindStopwatch(workoutId, timeEl, toggleButton, resetButton) {
+  const stopwatch = getStopwatchEntry(workoutId);
+
+  if (activeStopwatchIntervalId) {
+    window.clearInterval(activeStopwatchIntervalId);
+    activeStopwatchIntervalId = null;
+  }
+
+  const renderStopwatch = () => {
+    const elapsedMs = stopwatch.running && stopwatch.startedAt
+      ? Date.now() - stopwatch.startedAt
+      : stopwatch.elapsedMs;
+
+    timeEl.textContent = formatStopwatchTime(elapsedMs);
+    toggleButton.textContent = stopwatch.running ? "Stop" : "Start";
+  };
+
+  toggleButton.addEventListener("click", () => {
+    if (stopwatch.running) {
+      stopwatch.elapsedMs = Date.now() - stopwatch.startedAt;
+      stopwatch.running = false;
+      stopwatch.startedAt = null;
+
+      if (activeStopwatchIntervalId) {
+        window.clearInterval(activeStopwatchIntervalId);
+        activeStopwatchIntervalId = null;
+      }
+
+      renderStopwatch();
+      return;
+    }
+
+    stopwatch.running = true;
+    stopwatch.startedAt = Date.now() - stopwatch.elapsedMs;
+    renderStopwatch();
+    activeStopwatchIntervalId = window.setInterval(renderStopwatch, 250);
+  });
+
+  resetButton.addEventListener("click", () => {
+    stopwatch.elapsedMs = 0;
+
+    if (stopwatch.running) {
+      stopwatch.startedAt = Date.now();
+    }
+
+    renderStopwatch();
+  });
+
+  renderStopwatch();
+
+  if (stopwatch.running) {
+    activeStopwatchIntervalId = window.setInterval(renderStopwatch, 250);
+  }
+}
+
+function formatStopwatchTime(elapsedMs) {
+  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
 function renderExerciseEditor({ item, exercise, workout, progressBar, completeMessage }) {
   item.innerHTML = "";
   item.classList.remove("checked");
@@ -738,6 +816,20 @@ function renderExerciseEditor({ item, exercise, workout, progressBar, completeMe
   item.appendChild(editor);
   nameInput.focus();
   nameInput.select();
+
+  window.setTimeout(() => {
+    document.addEventListener("click", handleOutsideExerciseEditor);
+  }, 0);
+
+  function handleOutsideExerciseEditor(event) {
+    if (editor.contains(event.target)) {
+      return;
+    }
+
+    document.removeEventListener("click", handleOutsideExerciseEditor);
+    render();
+    syncWorkoutProgress(progressBar, completeMessage, workout);
+  }
 }
 
 function renderWorkoutRowEditor({ item, workout }) {
@@ -818,6 +910,19 @@ function renderWorkoutRowEditor({ item, workout }) {
   item.appendChild(editor);
   titleInput.focus();
   titleInput.select();
+
+  window.setTimeout(() => {
+    document.addEventListener("click", handleOutsideWorkoutEditor);
+  }, 0);
+
+  function handleOutsideWorkoutEditor(event) {
+    if (editor.contains(event.target)) {
+      return;
+    }
+
+    document.removeEventListener("click", handleOutsideWorkoutEditor);
+    render();
+  }
 }
 function isWorkoutComplete(workout) {
   return workout.exercises.length > 0 && workout.exercises.every((exercise) => exercise.checked);
@@ -856,18 +961,12 @@ function formatCompletionDate(value) {
   return `${day}.${month}.${year}`;
 }
 
-function resetWorkoutProgress(workoutId) {
-  const workout = state.workouts.find((entry) => entry.id === workoutId);
-
-  if (!workout) {
-    return;
-  }
-
-  workout.exercises.forEach((exercise) => {
-    exercise.checked = false;
+function resetAllWorkoutProgress() {
+  state.workouts.forEach((workout) => {
+    workout.exercises.forEach((exercise) => {
+      exercise.checked = false;
+    });
   });
-
-  saveState();
 }
 
 function attachHoldGesture(handle, { dragElement, container, itemSelector, onHold, onReorder }) {

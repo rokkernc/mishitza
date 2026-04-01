@@ -86,13 +86,21 @@
           <button class="primary-button add-workout-button" id="show-exercise-form">+ Add exercise</button>
         </div>
 
-        <div class="bottom-action">
-          <button class="back-button" id="back-home">&lt; Back</button>
-        </div>
-
         <div id="workout-complete-message" class="complete-message hidden">
           <strong>Workout complete</strong>
           <span>Great job 💪</span>
+        </div>
+
+        <div class="stopwatch-panel">
+          <div id="workout-stopwatch" class="stopwatch-time">00:00</div>
+          <div class="stopwatch-actions">
+            <button class="primary-button" id="toggle-stopwatch">Start</button>
+            <button class="ghost-button" id="reset-stopwatch">Reset</button>
+          </div>
+        </div>
+
+        <div class="bottom-action">
+          <button class="back-button" id="back-home">&lt; Back</button>
         </div>
       </section>
     </template>
