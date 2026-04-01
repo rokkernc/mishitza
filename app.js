@@ -13,6 +13,7 @@ let activeStopwatchIntervalId = null;
 const state = loadState();
 
 registerServiceWorker();
+initializeHistory();
 render();
 
 function loadState() {
@@ -39,6 +40,48 @@ function registerServiceWorker() {
       // PWA installability is optional; the app should still work without registration.
     });
   });
+}
+
+function initializeHistory() {
+  window.addEventListener("popstate", (event) => {
+    state.currentWorkoutId = event.state?.workoutId ?? null;
+    saveState();
+    render();
+  });
+
+  history.replaceState({ workoutId: null }, "", buildUrl(null));
+
+  if (state.currentWorkoutId) {
+    history.pushState(
+      { workoutId: state.currentWorkoutId },
+      "",
+      buildUrl(state.currentWorkoutId)
+    );
+  }
+}
+
+function buildUrl(workoutId) {
+  const base = `${window.location.pathname}${window.location.search}`;
+  return workoutId ? `${base}#workout=${encodeURIComponent(workoutId)}` : base;
+}
+
+function openWorkout(workoutId) {
+  state.currentWorkoutId = workoutId;
+  saveState();
+  history.pushState({ workoutId }, "", buildUrl(workoutId));
+  render();
+}
+
+function goHome() {
+  if (history.state?.workoutId) {
+    history.back();
+    return;
+  }
+
+  state.currentWorkoutId = null;
+  saveState();
+  history.replaceState({ workoutId: null }, "", buildUrl(null));
+  render();
 }
 
 function saveState() {
@@ -253,9 +296,7 @@ function renderHomeScreen() {
           return;
         }
 
-        state.currentWorkoutId = workout.id;
-        saveState();
-        render();
+        openWorkout(workout.id);
       });
 
       item.addEventListener("keydown", (event) => {
@@ -268,9 +309,7 @@ function renderHomeScreen() {
         }
 
         event.preventDefault();
-        state.currentWorkoutId = workout.id;
-        saveState();
-        render();
+        openWorkout(workout.id);
       });
 
       attachHoldGesture(grip, {
@@ -409,9 +448,7 @@ function renderWorkoutScreen(workoutId) {
       resetAllWorkoutProgress();
     }
 
-    state.currentWorkoutId = null;
-    saveState();
-    render();
+    goHome();
   });
 
   showExerciseFormButton.addEventListener("click", () => {
