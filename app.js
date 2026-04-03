@@ -574,7 +574,7 @@ function renderWorkoutScreen(workoutId) {
       externalLinkButton.setAttribute("aria-label", `Search ${exercise.name} on YouTube`);
       externalLinkButton.innerHTML = `
         <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-          <path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3Zm5 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2v7Z"/>
+          <path d="M4.75 6.5A2.25 2.25 0 0 1 7 4.25h8A2.25 2.25 0 0 1 17.25 6.5v2.05l3.14-2.52a1.35 1.35 0 0 1 2.19 1.05v9.84a1.35 1.35 0 0 1-2.19 1.05l-3.14-2.52v2.05A2.25 2.25 0 0 1 15 19.75H7a2.25 2.25 0 0 1-2.25-2.25v-11Z"/>
         </svg>
       `;
 
