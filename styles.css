@@ -353,9 +353,9 @@ input:focus {
 .exercise-label {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 1ch;
   min-width: 0;
-  flex-wrap: nowrap;
+  flex: 1;
 }
 
 .drag-grip {
@@ -417,11 +417,16 @@ input:focus {
   transition: opacity 180ms ease, text-decoration-color 180ms ease;
 }
 
+.exercise-name {
+  min-width: 0;
+}
+
 .exercise-max {
   font-size: 1.02rem;
   font-weight: 400;
   color: var(--text);
-  margin-left: 1ch;
+  margin-left: 0;
+  flex-shrink: 0;
 }
 
 .inline-item-editor {
